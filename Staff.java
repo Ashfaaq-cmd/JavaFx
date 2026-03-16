@@ -4,10 +4,6 @@ private int id;
 private String name;
 private int age;
 
-@Override
-public String toString() {
-	return "Staff [id=" + id + ", name=" + name + ", age=" + age + "]";
-}
 public Staff(int id, String name, int age) {
 	super();
 	this.id = id;
@@ -32,8 +28,9 @@ public int getAge() {
 public void setAge(int age) {
 	this.age = age;
 }
+@Override
+public String toString() {
+	return "Staff [id=" + id + ", name=" + name + ", age=" + age + "]";
+}
 
-
-
-	
 }

@@ -1,7 +1,12 @@
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.ListIterator;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -11,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class StaffManagement extends Application{
+	private final ArrayList<Staff> staffList = new ArrayList<>();
 	
 	 public static void main(String[] args) {
 	        launch(args);
@@ -43,7 +49,86 @@ public class StaffManagement extends Application{
 	        Button btnSortDesc = new Button("Sort Desc");
 	        Button btnExit = new Button("Exit");
 	        
-	       
+	       //Input Logic
+	        btnInput.setOnAction(e ->{
+	        	int txtid = Integer.parseInt(id.getText());
+	        	String txtname = name.getText();
+	        	int txtage = Integer.parseInt(age.getText());
+	        	 
+	        	
+	        	Staff s = new Staff(txtid, txtname, txtage);
+	        	staffList.add(s);
+	        	result.setText("Staff Added:\nID: " + s.getId()+ "  Name: " + s.getName() + "  Age: " + s.getAge());
+	        	id.clear();
+                name.clear();
+                age.clear();
+	        	
+	        });
+	        
+	        //List
+	        btnList.setOnAction(e->{
+	        	if (staffList.isEmpty()) {
+	        		result.setText("No Records Found");
+	        		return;
+	        	}
+	        	StringBuilder sb = new StringBuilder();
+	        	sb.append(String.format("%-6s %-20s %s%n", "ID", "Name", "Age"));
+	            sb.append("-".repeat(32)).append("\n");
+	            ListIterator<Staff> it = staffList.listIterator();
+	            while (it.hasNext()) {
+	                Staff s = it.next();
+	                sb.append(String.format("%-6d %-20s %d%n", s.getId(), s.getName(), s.getAge()));
+	            }
+	            result.setText(sb.toString());
+	        });
+	        btnSearch.setOnAction(e -> {
+	            String query = search.getText().trim();
+	            if (query.isEmpty()) {
+	            	showAlert("Search", "Please enter a name or ID.");
+	            	return;
+	            	}
+	            
+	            StringBuilder sb = new StringBuilder("Results for \"" + query + "\":\n");
+	            boolean found = false;
+	            
+	            ListIterator<Staff> it = staffList.listIterator();
+	            
+	            while (it.hasNext()) {
+	                Staff s = it.next();
+	                if (s.getName().toLowerCase().contains(query.toLowerCase())
+	                        || String.valueOf(s.getId()).equals(query)) {
+	                    sb.append(String.format("%-6d %-20s %d%n",
+	                            s.getId(), s.getName(), s.getAge()));
+	                    found = true;
+	                }
+	            }
+	            result.setText(found ? sb.toString() : "No results found for \"" + query + "\".");
+	        });
+	 
+	        // Sort Ascending
+	        btnSortAsc.setOnAction(e -> {
+	            if (staffList.isEmpty()) { 
+	            	result.setText("No records to sort.");
+	            	return; 
+	            	}
+	            
+	            staffList.sort(Comparator.comparing(Staff::getName));
+	            result.setText("Sorted ascending by Name. Click List All to view.");
+	        });
+	 
+	        // Sort Descending
+	        btnSortDesc.setOnAction(e -> {
+	            if (staffList.isEmpty()) {
+	            	result.setText("No records to sort.");
+	            	return;
+	            	}
+	            staffList.sort(Comparator.comparing(Staff::getName).reversed());
+	            result.setText("Sorted descending by Name. Click List All to view.");
+	        });
+	 
+	        // Exit
+	        btnExit.setOnAction(e -> stage.close());
+	 
 	        
 	        GridPane grid = new GridPane();
 	        grid.setPadding(new Insets(15));
@@ -70,6 +155,14 @@ public class StaffManagement extends Application{
 	        stage.setTitle("Staff Management Form");
 	        stage.setScene(scene);
 	        stage.show();
+	}
+	private void showAlert(String title, String msg) {
+		// TODO Auto-generated method stub
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
 	}
 
 }
